@@ -1,16 +1,19 @@
 import axios from "axios";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router"
 
 export default function AddUser() {
+    const [btnTxt, setBtnTxt] = useState("submit")
     const navigate = useNavigate();
-    const { register, handleSubmit, formState: { errors }, watch } = useForm();
-
+    const { register, handleSubmit, formState: { errors } } = useForm();
     const onSubmitData = async (data) => {
         try {
-            let lastId = axios.get("http://localhost:9800/lastid");
-            // let data = await axios.post("http://localhost:9800/insertnewuser", { lastId, ...data })
-            console.log({ lastId, ...data });
+            let resp = axios.get("http://localhost:9800/lastid");
+            let lastId = await resp
+            let id = lastId.data[0].id + 1;
+            let respo = await axios.post("http://localhost:9800/insertnewuser", { id, ...data })
+            setBtnTxt(respo.data);
         } catch (er) {
             console.log(er);
         }
@@ -55,7 +58,7 @@ export default function AddUser() {
                         </div>
                         {errors.name && <span>{errors.city.message}</span>}
                         <div className="">
-                            <button type="submit" className="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-md px-10 py-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">save</button>
+                            <button type="submit" className="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-md px-10 py-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">{btnTxt}</button>
                         </div>
                     </div>
                 </form>
