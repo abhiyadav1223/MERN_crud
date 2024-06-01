@@ -3,8 +3,9 @@ const mongoose = require('mongoose');
 const express = require("express");
 const app = express();
 const userData = require('./userinfo');
-
+const cors = require('cors')
 app.use(express.json());
+app.use(cors())
 
 app.get('/dashboard', async (req, resp) => {
     try {
