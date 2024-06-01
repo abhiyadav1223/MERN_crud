@@ -1,0 +1,5 @@
+Data API - http://localhost:9800/dashboard
+Search API - http://localhost:9800/search/key
+Insert API - http://localhost:9800/insertnewuser || body also 
+update API - http://localhost:9800/updateuser/_id
+delete API - http://localhost:9800/removeuser/_id
