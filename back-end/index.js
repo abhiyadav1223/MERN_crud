@@ -15,6 +15,14 @@ app.get('/dashboard', async (req, resp) => {
         resp.status(404).send("Not Found");
     }
 })
+app.get('/lastid', async (req, resp) => {
+    try {
+        let data = await userData.find().sort({_id:-1}).limit(1);
+        resp.status(200).send(data);
+    } catch (er) {
+        resp.status(404).send("Not Found");
+    }
+})
 
 app.get('/search/:key', async (req, resp) => {
     try {
