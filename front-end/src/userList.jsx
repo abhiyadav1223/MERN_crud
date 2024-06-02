@@ -4,26 +4,54 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router";
 export default function UserList() {
     const [users, setUsers] = useState([]);
+    const [searchData, setSearchData] = useState([]);
+    const [error, setError] = useState(" ");
     const navigate = useNavigate();
     useEffect(() => {
         axios.get("http://localhost:9800/dashboard")
-            .then((data) => setUsers(data.data))
+            .then((data) => {
+                setSearchData(data.data)
+                return setUsers(data.data)
+            })
             .catch((er) => {
                 console.log(er);
             })
     }, []);
+
+    const seacrhUser = async (event) => {
+        try {
+            let key = event.target.value;
+            if (key != 0) {
+                let resp = await axios.get(`http://localhost:9800/search/${key}`);
+                if (resp.data.length !== 0) {
+                    setUsers(resp.data);
+                    setError(' ');
+                } else {
+                    setUsers([]);
+                    setError("Not Found");
+                }
+            } else {
+                setError(' ');
+                setUsers(searchData);
+            }
+        }
+        catch (er) {
+            // setError("Not Found");
+        }
+
+    }
     return (
         <>
-            <div>
+            <div className="flex flex-col gap-5">
                 <div className="flex justify-evenly gap-[44rem] ">
                     <div>
-                        <button onClick={() => navigate('/add')} type="button" class="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">Add student</button>
+                        <button onClick={() => navigate('/add')} type="button" className="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">Add student</button>
                     </div>
                     <div>
-                        <input className="border-2 text-lg border-purple-500 w-96 px-2 py-1  text-center rounded-md" type="text" placeholder="search..." />
+                        <input onInput={(event) => seacrhUser(event)} className="border-2 text-lg border-purple-500 w-96 px-2 py-1  text-center rounded-md" type="text" placeholder="search..." />
                     </div>
                 </div>
-                <div className="relative overflow-x-auto sm:rounded-lg">
+                <div className="relative overflow-x-auto sm:rounded-lg shadow-xl">
                     <table className=" w-full text-sm text-left rtl:text-right text-black dark:text-black font-bold">
                         <thead className=" border-b-2 border-purple-600 text-xs text-gray-700 uppercase bg-white dark:bg-white">
                             <tr>
@@ -54,13 +82,13 @@ export default function UserList() {
                                         {item.email}
                                     </td>
                                     <td scope="col" className="px-6 py-3 cursor-pointer">
-                                        <svg onClick={() => navigate('/view',{ state: item })} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 hover:animate-ping">
+                                        <svg onClick={() => navigate('/view', { state: item })} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 hover:animate-ping">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                                         </svg>
                                     </td>
                                     <td scope="col" className="px-6 py-3">
-                                        <svg onClick={() => navigate('/edit')} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 hover:animate-ping cursor-pointer">
+                                        <svg onClick={() => navigate('/edit', { state: item })} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 hover:animate-ping cursor-pointer">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
                                         </svg>
 
@@ -74,6 +102,7 @@ export default function UserList() {
                             })}
                         </tbody>
                     </table>
+                    {<span>{error}</span>}
                 </div>
 
             </div>
