@@ -1,4 +1,5 @@
 import React, { Suspense } from "react";
+import UserList from "./userList";
 export default function HomePage() {
     return (
         <>
@@ -7,6 +8,7 @@ export default function HomePage() {
                     <span>Student Mangement System</span>
                 </div>
                 <div>
+                    <UserList />
                 </div>
             </div>
         </>
