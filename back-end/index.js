@@ -1,4 +1,5 @@
 require('./db');
+const port = 9800;
 const mongoose = require('mongoose');
 const express = require("express");
 const app = express();
@@ -36,12 +37,12 @@ app.post('/login', async (req, resp) => {
         let body = req.body;
         let data = await userAuth.find(body);
         if (data.length != 0) {
-            jwt.sign({ data }, secretKey, { expiresIn: '500s' }, (err, token) => {
+            jwt.sign({ data }, secretKey, { expiresIn: '10000s' }, (err, token) => {
                 if (err) {
                     console.log(err);
                 }
                 else {
-                    resp.status(200).json({ message: "LogIn Success", token });
+                    resp.status(200).json({ message: "LogIn Success", token, data });
                 }
             })
         }
@@ -53,20 +54,6 @@ app.post('/login', async (req, resp) => {
     }
 })
 
-app.post('/profile', tokenVerify, (req, resp) => {
-    jwt.verify(req.token, secretKey, (err, auth) => {
-        if (err) {
-            resp.send("invalid token")
-        }
-        else {
-            resp.json({
-                msg: "profile verfied",
-                auth
-            })
-        }
-    })
-})
-
 function tokenVerify(req, resp, next) {
     let bearerHead = req.headers['authorization'];
     if (typeof bearerHead !== 'undefined') {
@@ -76,9 +63,7 @@ function tokenVerify(req, resp, next) {
         next();
     }
     else {
-        resp.send({
-            msg: "Token Expires..."
-        })
+        resp.status(403).send("Forbidden , token expire");
     }
 }
 
@@ -90,63 +75,100 @@ app.get('/dashboard', async (req, resp) => {
         resp.status(404).send("Not Found");
     }
 })
-app.get('/lastid', async (req, resp) => {
+app.get('/lastid', tokenVerify, async (req, resp) => {
     try {
-        let data = await userData.find().sort({ _id: -1 }).limit(1);
-        resp.status(200).send(data);
+        jwt.verify(req.token, secretKey, async (err, auth) => {
+            if (err) {
+                resp.send("invalid token")
+            }
+            else {
+                let data = await userData.find().sort({ _id: -1 }).limit(1);
+                resp.status(200).send(data);
+            }
+        })
     } catch (er) {
         resp.status(404).send("Not Found");
     }
 })
 
-app.get('/search/:key', async (req, resp) => {
+app.get('/search/:key', tokenVerify, async (req, resp) => {
     try {
-        let key = req.params.key;
-        let data = await userData.find({
-            "$or": [
-                { "name": { $regex: key } },
-                { "email": { $regex: key } },
-                { "city": { $regex: key } },
+        jwt.verify(req.token, secretKey, async (err, auth) => {
+            if (err) {
+                resp.send("invalid token")
+            }
+            else {
+                let key = req.params.key;
+                let data = await userData.find({
+                    "$or": [
+                        { "name": { $regex: key } },
+                        { "email": { $regex: key } },
+                        { "city": { $regex: key } },
 
-            ]
-        });
-        resp.status(200).send(data);
+                    ]
+                });
+                resp.status(200).send(data);
+            }
+        })
     } catch (er) {
         resp.status(404).send("Not Found");
     }
 })
 
-app.post('/insertnewuser', async (req, resp) => {
+app.post('/insertnewuser', tokenVerify, async (req, resp) => {
     try {
-        let body = req.body;
-        let data = await userData(body);
-        let insertData = await data.save()
-        resp.status(200).send("data inserted successfully");
+        jwt.verify(req.token, secretKey, async (err, auth) => {
+            if (err) {
+                resp.status(498).send("invalid token")
+            }
+            else {
+                let body = req.body;
+                let data = await userData(body);
+                let insertData = await data.save()
+                resp.status(200).send("data inserted successfully");
+            }
+        })
     } catch (er) {
         resp.status(404).send("Not Found");
     }
 })
 
-app.put('/updateuser/:_id', async (req, resp) => {
+app.put('/updateuser/:_id', tokenVerify, async (req, resp) => {
     try {
-        let result = await userData.updateOne(
-            req.params,
-            { $set: req.body }
-        )
-        resp.status(200).send("data updated successfully");
+
+        jwt.verify(req.token, secretKey, async (err, auth) => {
+            if (err) {
+                resp.send("invalid token")
+            }
+            else {
+                let result = await userData.updateOne(
+                    req.params,
+                    { $set: req.body }
+                )
+                resp.status(200).send("data updated successfully");
+            }
+        })
     } catch (er) {
         resp.status(404).send("Not Found");
     }
 })
-app.delete('/removeuser/:_id', async (req, resp) => {
+app.delete('/removeuser/:_id', tokenVerify, async (req, resp) => {
     try {
-        let result = await userData.deleteOne(req.params)
-        resp.status(200).send("data deleted successfully");
+        jwt.verify(req.token, secretKey, async (err, auth) => {
+            if (err) {
+                resp.send("invalid token")
+            }
+            else {
+                let result = await userData.deleteOne(req.params)
+                let returnData = await userData.find();
+                resp.status(200).json({ msg: "data deleted successfully", returnData: returnData });
+            }
+        })
     } catch (er) {
         resp.status(404).send("Not Found");
     }
 })
 
-app.listen(9800, () => {
+app.listen(port, () => {
     console.log("connected");
 });
