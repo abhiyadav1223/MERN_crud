@@ -8,7 +8,7 @@ export default function HomePage() {
                     <span>Student Mangement System</span>
                 </div>
                 <div>
-                    <UserList />
+                    {/* <UserList /> */}
                 </div>
             </div>
         </>

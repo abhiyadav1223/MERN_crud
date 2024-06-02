@@ -7,7 +7,6 @@ import { useNavigate } from "react-router";
 export default function UserList() {
 
     const token = useSelector(state => state.data.userDetail.token);
-    // console.log(token);
     const [users, setUsers] = useState([]);
     const [searchData, setSearchData] = useState([]);
     const [error, setError] = useState(" ");
@@ -32,7 +31,8 @@ export default function UserList() {
                         Authorization: `Bearer ${token}`
                     }
                 });
-                if (resp.data.length !== 0) {
+                console.log(resp);
+                if (Array.isArray(resp.data) && resp.data.length !== 0) {
                     setUsers(resp.data);
                     setError(' ');
                 } else {

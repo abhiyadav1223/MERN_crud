@@ -35,7 +35,7 @@ export default function Login() {
     }
     return (
         <>
-            <div className="shadow-lg w-[40rem] mx-auto flex flex-col gap-8 mt-44 rounded-xl">
+            <div className="shadow-lg w-[40rem] mx-auto flex flex-col gap-8 mt-32 rounded-xl">
                 <div className="bg-purple-500 text-2xl font-bold rounded-t-xl text-white py-2">
                     <span>Login</span>
                 </div>
