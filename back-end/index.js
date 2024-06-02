@@ -5,6 +5,9 @@ const app = express();
 const userData = require('./userinfo');
 const userAuth = require('./loginSignup');
 const cors = require('cors')
+const jwt = require('jsonwebtoken')
+const secretKey = "secretkey1200";
+
 app.use(express.json());
 app.use(cors());
 
@@ -28,20 +31,56 @@ app.post('/signup', async (req, resp) => {
     }
 })
 
-app.get('/login', async (req, resp) => {
+app.post('/login', async (req, resp) => {
     try {
         let body = req.body;
         let data = await userAuth.find(body);
         if (data.length != 0) {
-            resp.status(200).send("LogIn Success");
+            jwt.sign({ data }, secretKey, { expiresIn: '500s' }, (err, token) => {
+                if (err) {
+                    console.log(err);
+                }
+                else {
+                    resp.status(200).json({ message: "LogIn Success", token });
+                }
+            })
         }
         else {
-            resp.status(404).send("Invalid userid or password");
+            resp.status(300).json({ message: "Invalid userid or password" });
         }
     } catch (er) {
-        console.log(er);
+        resp.status(500).json({ message: "server error" });
     }
 })
+
+app.post('/profile', tokenVerify, (req, resp) => {
+    jwt.verify(req.token, secretKey, (err, auth) => {
+        if (err) {
+            resp.send("invalid token")
+        }
+        else {
+            resp.json({
+                msg: "profile verfied",
+                auth
+            })
+        }
+    })
+})
+
+function tokenVerify(req, resp, next) {
+    let bearerHead = req.headers['authorization'];
+    if (typeof bearerHead !== 'undefined') {
+        const bearer = bearerHead.split(' ');
+        const token = bearer[1];
+        req.token = token;
+        next();
+    }
+    else {
+        resp.send({
+            msg: "Token Expires..."
+        })
+    }
+}
 
 app.get('/dashboard', async (req, resp) => {
     try {
