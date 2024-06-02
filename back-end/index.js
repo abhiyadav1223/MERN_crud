@@ -37,7 +37,7 @@ app.post('/login', async (req, resp) => {
         let body = req.body;
         let data = await userAuth.find(body);
         if (data.length != 0) {
-            jwt.sign({ data }, secretKey, { expiresIn: '10000s' }, (err, token) => {
+            jwt.sign({ data }, secretKey, { expiresIn: '100s' }, (err, token) => {
                 if (err) {
                     console.log(err);
                 }
@@ -79,7 +79,7 @@ app.get('/lastid', tokenVerify, async (req, resp) => {
     try {
         jwt.verify(req.token, secretKey, async (err, auth) => {
             if (err) {
-                resp.send("invalid token")
+                resp.status(498).send("invalid token");
             }
             else {
                 let data = await userData.find().sort({ _id: -1 }).limit(1);
@@ -95,7 +95,7 @@ app.get('/search/:key', tokenVerify, async (req, resp) => {
     try {
         jwt.verify(req.token, secretKey, async (err, auth) => {
             if (err) {
-                resp.send("invalid token")
+                resp.status(498).send("invalid token");
             }
             else {
                 let key = req.params.key;
@@ -138,7 +138,7 @@ app.put('/updateuser/:_id', tokenVerify, async (req, resp) => {
 
         jwt.verify(req.token, secretKey, async (err, auth) => {
             if (err) {
-                resp.send("invalid token")
+                resp.status(498).send("invalid token");
             }
             else {
                 let result = await userData.updateOne(
@@ -156,7 +156,7 @@ app.delete('/removeuser/:_id', tokenVerify, async (req, resp) => {
     try {
         jwt.verify(req.token, secretKey, async (err, auth) => {
             if (err) {
-                resp.send("invalid token")
+                resp.status(498).send("invalid token");
             }
             else {
                 let result = await userData.deleteOne(req.params)
