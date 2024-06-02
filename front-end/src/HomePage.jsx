@@ -1,11 +1,4 @@
 import React, { Suspense } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import UserList from "./userList";
-import AddUser from "./AddUser";
-// import ViewUser from "./ViewUser";
-const ViewUser = React.lazy(() => import('./ViewUser'));
-import UpdateUser from "./UpdateUser";
-
 export default function HomePage() {
     return (
         <>
@@ -14,16 +7,6 @@ export default function HomePage() {
                     <span>Student Mangement System</span>
                 </div>
                 <div>
-                    <BrowserRouter>
-                    <Suspense fallback={<div>Loading...</div>}>
-                        <Routes>
-                            <Route path='/' element={<UserList />} />
-                            <Route path='/add' element={<AddUser />} />
-                            <Route path='/view' element={<ViewUser />} />
-                            <Route path='/edit' element={<UpdateUser />} />
-                        </Routes>
-                    </Suspense>
-                    </BrowserRouter>
                 </div>
             </div>
         </>
