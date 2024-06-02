@@ -1,9 +1,12 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router";
 
 export default function UpdateUser() {
+    const token = useSelector(state => state.data.userDetail.token);
+
     const [btnTxt, setBtnTxt] = useState("submit")
     const [User, setUser] = useState({
         id: '',
@@ -23,10 +26,17 @@ export default function UpdateUser() {
 
     const onSubmitData = async (data) => {
         try {
-            let resp = axios.put(`http://localhost:9800/updateuser/${data._id}`, data);
+            let resp = axios.put(`http://localhost:9800/updateuser/${data._id}`, data, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             let resData = await resp;
             setBtnTxt(resData.data);
         } catch (er) {
+            if(er.response.status == 498){
+                navigate('/')
+            }
             console.log(er);
         }
     }
@@ -42,7 +52,7 @@ export default function UpdateUser() {
         <>
             <div>
                 <div className="flex justify-start">
-                    <button onClick={() => navigate('/')} type="button" className="text-purple-500 border-2 border-purple-500 focus:outline-none bg-white hover:bg-purple-200 hover:text-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:focus:ring-purple-900">Home</button>
+                    <button onClick={() => navigate('/home')} type="button" className="text-purple-500 border-2 border-purple-500 focus:outline-none bg-white hover:bg-purple-200 hover:text-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:focus:ring-purple-900">Home</button>
                 </div>
                 <form onSubmit={handleSubmit(onSubmitData)}>
                     <div className="shadow-lg rounded-lg mt-4 flex justify-center flex-col gap-5 py-5">

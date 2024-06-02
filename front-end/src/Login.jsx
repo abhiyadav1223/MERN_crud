@@ -1,8 +1,11 @@
 import axios from "axios";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
+import { addUser } from './store/userData'
 
 export default function Login() {
+    const dispatch = useDispatch();
     const [Id, setId] = useState();
     const [pass, setPass] = useState();
     const [respMsg, setMsg] = useState();
@@ -15,7 +18,8 @@ export default function Login() {
             }
             if (obj.userId && obj.password) {
                 let resp = await axios.post('http://localhost:9800/login', obj);
-                console.log(resp);
+                let userObj = { token: resp.data.token, userId: resp.data.data[0].userId }
+                dispatch(addUser(userObj))
                 setMsg(resp.data.message);
                 navigate('/home')
             } else {

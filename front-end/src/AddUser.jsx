@@ -1,28 +1,42 @@
 import axios from "axios";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router"
 
 export default function AddUser() {
+    const token = useSelector(state => state.data.userDetail.token);
+
     const [btnTxt, setBtnTxt] = useState("submit")
     const navigate = useNavigate();
     const { register, handleSubmit, formState: { errors } } = useForm();
     const onSubmitData = async (data) => {
         try {
-            let resp = axios.get("http://localhost:9800/lastid");
+            let resp = axios.get("http://localhost:9800/lastid", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             let lastId = await resp
             let id = lastId.data[0].id + 1;
-            let respo = await axios.post("http://localhost:9800/insertnewuser", { id, ...data })
-            setBtnTxt(respo.data);
+            let respo = await axios.post("http://localhost:9800/insertnewuser", { id, ...data }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+            setBtnTxt("data added");
         } catch (er) {
-            console.log(er);
+            if(er.response.status == 498){
+                navigate('/')
+            }
+            
         }
     };
     return (
         <>
             <div>
                 <div className="flex justify-start">
-                    <button onClick={() => navigate('/')} type="button" className="text-purple-500 border-2 border-purple-500 focus:outline-none bg-white hover:bg-purple-200 hover:text-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:focus:ring-purple-900">Home</button>
+                    <button onClick={() => navigate('/home')} type="button" className="text-purple-500 border-2 border-purple-500 focus:outline-none bg-white hover:bg-purple-200 hover:text-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:focus:ring-purple-900">Home</button>
                 </div>
                 <form onSubmit={handleSubmit(onSubmitData)}>
                     <div className="shadow-lg rounded-lg mt-4 flex justify-center flex-col gap-5 py-5">

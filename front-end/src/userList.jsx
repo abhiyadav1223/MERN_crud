@@ -1,8 +1,13 @@
 import axios from "axios";
 import { useState } from "react";
 import { useEffect } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
+
 export default function UserList() {
+
+    const token = useSelector(state => state.data.userDetail.token);
+    // console.log(token);
     const [users, setUsers] = useState([]);
     const [searchData, setSearchData] = useState([]);
     const [error, setError] = useState(" ");
@@ -16,13 +21,17 @@ export default function UserList() {
             .catch((er) => {
                 console.log(er);
             })
-    }, [searchData]);
+    }, []);
 
     const seacrhUser = async (event) => {
         try {
             let key = event.target.value;
             if (key != 0) {
-                let resp = await axios.get(`http://localhost:9800/search/${key}`);
+                let resp = await axios.get(`http://localhost:9800/search/${key}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
                 if (resp.data.length !== 0) {
                     setUsers(resp.data);
                     setError(' ');
@@ -37,6 +46,9 @@ export default function UserList() {
         }
         catch (er) {
             setError("Not Found");
+            if (er.response.status == 498) {
+                navigate('/')
+            }
         }
 
     }
@@ -44,11 +56,19 @@ export default function UserList() {
         try {
             let conf = confirm("are you sure want to delete ?")
             if (conf) {
-                let data = await axios.delete(`http://localhost:9800/removeuser/${id}`);
-                alert(data.data);
+                let data = await axios.delete(`http://localhost:9800/removeuser/${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                alert(data.data.msg);
+                setUsers(data.data.returnData);
             }
         } catch (er) {
             console.log(er);
+            if (er.response.status == 498) {
+                navigate('/')
+            }
         }
     }
 

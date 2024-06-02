@@ -13,7 +13,7 @@ export default function ViewUser() {
         <>
             <div>
                 <div className="flex justify-start">
-                    <button onClick={() => navigate('/')} type="button" className="text-purple-500 border-2 border-purple-500 focus:outline-none bg-white hover:bg-purple-200 hover:text-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:focus:ring-purple-900">Home</button>
+                    <button onClick={() => navigate('/home')} type="button" className="text-purple-500 border-2 border-purple-500 focus:outline-none bg-white hover:bg-purple-200 hover:text-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:focus:ring-purple-900">Home</button>
                 </div>
                 <div className="shadow-lg rounded-lg mt-4 flex justify-center flex-col gap-5 py-5 font-bold">
                     <div className="bg-purple-500 text-white text-xl py-2 rounded-t-xl font-bold">
