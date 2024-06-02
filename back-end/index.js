@@ -3,9 +3,45 @@ const mongoose = require('mongoose');
 const express = require("express");
 const app = express();
 const userData = require('./userinfo');
+const userAuth = require('./loginSignup');
 const cors = require('cors')
 app.use(express.json());
-app.use(cors())
+app.use(cors());
+
+
+
+app.post('/signup', async (req, resp) => {
+    try {
+        let body = req.body;
+        let data = await userAuth.find({ userId: body.userId });
+        if (data.length == 0) {
+            let addUser = await userAuth(body);
+            let respUser = await addUser.save();
+            resp.status(200).send("Sign Up Success");
+        }
+        else {
+            resp.status(404).send("already exits");
+        }
+
+    } catch (er) {
+        console.log(er);
+    }
+})
+
+app.get('/login', async (req, resp) => {
+    try {
+        let body = req.body;
+        let data = await userAuth.find(body);
+        if (data.length != 0) {
+            resp.status(200).send("LogIn Success");
+        }
+        else {
+            resp.status(404).send("Invalid userid or password");
+        }
+    } catch (er) {
+        console.log(er);
+    }
+})
 
 app.get('/dashboard', async (req, resp) => {
     try {
@@ -17,7 +53,7 @@ app.get('/dashboard', async (req, resp) => {
 })
 app.get('/lastid', async (req, resp) => {
     try {
-        let data = await userData.find().sort({_id:-1}).limit(1);
+        let data = await userData.find().sort({ _id: -1 }).limit(1);
         resp.status(200).send(data);
     } catch (er) {
         resp.status(404).send("Not Found");
@@ -44,7 +80,6 @@ app.get('/search/:key', async (req, resp) => {
 app.post('/insertnewuser', async (req, resp) => {
     try {
         let body = req.body;
-        // console.log(body);
         let data = await userData(body);
         let insertData = await data.save()
         resp.status(200).send("data inserted successfully");
